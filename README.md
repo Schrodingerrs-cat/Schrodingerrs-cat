@@ -1,120 +1,62 @@
-# 👋 Hey, I'm Aryan
+# aryan shah
 
-🤖 **M.S. Robotics Engineering @ Worcester Polytechnic Institute** — building the perception stack for an autonomous vehicle I call **Schrödinger's Vision**. Until you observe it, the lane is both there and not there.
+i teach machines to see, mostly so they don't run into things.
 
-I care about how robots **see, think, and move** — perception, autonomy, controls, and embedded systems. I've shipped autonomy on UAVs, satellites, manipulators, and humanoids. Currently going deeper into **physical AI** and learned-vs-classical fusion.
+currently a robotics masters student at WPI. before this i was in india putting flight controllers on drones and a satellite into the sky (it came back down, eventually, with a 2nd place medal attached). now i'm in worcester building a perception stack i call **schrödinger's vision** — a name i picked because in my experience the lane line is genuinely both there and not there until something's brave enough to look.
 
-📍 Worcester, MA · 🎓 BTech Electronics & Communication, Nirma University · ✈️ Previously satellites + flight controllers in India
-
----
-
-## 🔭 Currently Working On
-
-- 🧠 **Schrödinger's Vision** — multi-camera autonomous driving perception (detection, tracking, depth, motion, BEV)
-- 🦾 **RoboCare Lab @ WPI** — vision-based assistive perception on Pepper humanoid for dementia care
-- 📚 Going deeper into physical AI, VLA models, and learned-classical fusion in robotics
+```
+location     : worcester, ma
+status       : sleep-deprived but enthusiastic
+working on   : making a tesla model s feed look like a tesla model s feed
+side quest   : physical AI, VLAs, and other acronyms i'll explain later
+```
 
 ---
 
-## 🚗 Featured Projects
+## things i've actually built
 
-### 🛣️ [MultiCam Autonomous Driving Perception](https://github.com/Schrodingerrs-cat/MultiCam-AutonomousDriving-Perception)
-Production-grade multi-camera perception system reproducing Tesla FSD-style visualization. Synchronized 4-camera dashcam input across 13 real-world driving sequences (night, tunnels, sunset glare, dense traffic). 15+ deep learning models integrated end-to-end: lane classification, multi-class detection, traffic light + sign recognition, pedestrian pose, brake/turn-indicator state, RAFT optical flow, monocular depth, and Blender 3D visualization with collision prediction.
-> `Python` `PyTorch` `OpenCV` `Blender` `YOLO` `RAFT` `BoT-SORT`
+**🛣️ [MultiCam Autonomous Driving Perception](https://github.com/Schrodingerrs-cat/MultiCam-AutonomousDriving-Perception)** — 4 cameras, 13 driving sequences, 15+ models stitched together, one tesla FSD-shaped dream. detects lanes, vehicles, pedestrians, traffic lights, optical flow, depth, the works. survives night, tunnels, sunset glare, and dense intersections. fails gracefully when it doesn't.
 
-### 🛰️ CanSat — Miniature Satellite Flight Control & Telemetry
-Co-led a 4-person team building a can-sized satellite with reaction-wheel PID attitude control, 900 MHz XBee RF telemetry, and embedded sensor fusion (IMU, pressure, temp). **🥈 2nd place nationally at SMOPS 2023** — India's first InSpace CanSat competition.
-> `C/C++` `PID Control` `XBee RF` `Embedded Systems`
+**🛰️ CanSat** — i co-led a 4-person team that built a satellite the size of a soda can. it had reaction wheels, RF telemetry, sensor fusion, and a healthy fear of gravity. 2nd place nationally at SMOPS 2023 (india's first InSpace CanSat comp). a servo died mid-flight. we adapted. we did not die.
 
-### 🚁 Quadrotor Trajectory Tracking
-Cascaded PD control stack with SO(3) attitude inner-loop and gravity-compensated outer-loop on Crazyflie 2.x. C²-continuous polynomial trajectory generators with quintic transitions, RL-tuned gains across 18+ sweeps. Achieves well-damped convergence in 3–4.5s with near-zero steady-state error.
-> `Python` `PyBullet` `Control Theory` `RL`
+**🚁 Crazyflie quadrotor controls** — cascaded PD with SO(3) attitude control, polynomial trajectories smooth enough that the math is doing more work than the props. 18+ gain configs swept, RL-tuned, well-damped in 3-4.5s. yes i'm proud of it.
 
-### 👁️ Deep & Classical Visual-Inertial Odometry
-PyTorch VIO fusing CNN visual encoder + LSTM inertial encoder via residual refiner. Benchmarked vision-only/IMU-only/fused on synthetic Blender data. Also implemented classical S-MSCKF (4th-order RK process model, EKF updates) on EuRoC, evaluated against Vicon ground truth.
-> `PyTorch` `MSCKF` `EuRoC` `Blender`
+**👁️ Visual-Inertial Odometry (deep + classical)** — built a CNN+LSTM VIO from scratch and an S-MSCKF for comparison. trained on synthetic blender data, evaluated on EuRoC against vicon. classical still wins on accuracy. deep wins on style points.
 
-### 🏗️ NeRF & Structure-from-Motion — *Buildings Built in Minutes*
-NeRF from scratch in PyTorch (positional encoding, hierarchical sampling, volumetric rendering). Full SfM pipeline: feature matching, RANSAC, essential matrix, PnP, triangulation, bundle adjustment.
-> `PyTorch` `3D Neural Rendering` `Multi-View Geometry`
+**🏗️ NeRF & SfM from scratch** — positional encoding, hierarchical sampling, volumetric rendering, the whole 3D-is-just-a-function-call deal. plus a full structure-from-motion pipeline because i wanted to know what bundle adjustment actually *does*.
 
-### 🔧 OpenManipulator-X FK/IK & Pick-and-Place
-ROS2 forward-kinematics node with explicit homogeneous transforms, analytical IK with elbow-up/down + joint-limit validation, exposed as ROS2 service. Pick-and-place client executing 7-pose Cartesian routine.
-> `ROS2` `C++` `Kinematics`
+**🔧 OpenManipulator-X** — wrote FK/IK by hand, exposed it as a ROS2 service, ran a 7-pose pick-and-place. the robot picked. the robot placed. occasionally in the right order.
 
-### 📡 GATI — UAV LoRa Payload Deployment
-Standalone embedded firmware for autonomous dual-servo payload deployment on UAV platforms. Microsecond-precision servo coordination, arming logic, fail-safe behaviors. Field-validated.
-> `Embedded C++` `LoRa` `Real-Time Control`
+**📡 GATI** — a LoRa-controlled payload deployment system for UAVs. dual servos. microsecond timing. fail-safes. used in the field. did not fall out of the sky.
 
-### 🔬 FPGA Target Identification — Published @ IEEE VLSID 2025
-Fine-tuned YOLOv2-Tiny on PYNQ-Z2 FPGA for real-time object detection. Profiled and optimized inference for resource-constrained hardware. Evaluated on 5,000+ COCO validation images.
-> 📄 *Hardware Implementation of Target Identification on FPGA*, **IEEE VLSID 2025**
+**🔬 [IEEE VLSID 2025] FPGA target ID** — fine-tuned YOLOv2-Tiny onto a PYNQ-Z2 board because GPUs are too easy. published the paper. the FPGA still runs.
 
 ---
 
-## 🛠️ Tech Stack
+## what i actually use
 
-**Languages**
+**daily drivers** — `C++` `Python` `ROS2` `PyTorch` `OpenCV` `Linux`
 
-![C++](https://img.shields.io/badge/C++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![C](https://img.shields.io/badge/C-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)
-![Bash](https://img.shields.io/badge/Bash-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)
+**when the project demands it** — `C` `Bash` `STM32` `Raspberry Pi` `Pixhawk` `MAVLink` `Blender` `PyBullet` `LaTeX`
 
-**Robotics & Perception**
-
-![ROS](https://img.shields.io/badge/ROS%202-22314E?style=for-the-badge&logo=ros&logoColor=white)
-![OpenCV](https://img.shields.io/badge/OpenCV-27338e?style=for-the-badge&logo=OpenCV&logoColor=white)
-![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
-![PyBullet](https://img.shields.io/badge/PyBullet-3776AB?style=for-the-badge&logoColor=white)
-![Blender](https://img.shields.io/badge/Blender-%23F5792A.svg?style=for-the-badge&logo=blender&logoColor=white)
-
-**Embedded & Flight**
-
-![STM32](https://img.shields.io/badge/STM32-03234B?style=for-the-badge&logo=stmicroelectronics&logoColor=white)
-![Raspberry Pi](https://img.shields.io/badge/Raspberry%20Pi-A22846?style=for-the-badge&logo=raspberrypi&logoColor=white)
-![Arduino](https://img.shields.io/badge/Arduino-00979D?style=for-the-badge&logo=arduino&logoColor=white)
-![Pixhawk](https://img.shields.io/badge/Pixhawk-000000?style=for-the-badge&logoColor=white)
-![MAVLink](https://img.shields.io/badge/MAVLink-1E5CB3?style=for-the-badge&logoColor=white)
-
-**Tools**
-
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
-![LaTeX](https://img.shields.io/badge/LaTeX-008080?style=for-the-badge&logo=latex&logoColor=white)
+**aspirationally** — anything with "physical AI" or "VLA" in the name, ask me again in 6 months
 
 ---
 
-## 📜 Publications
+## elsewhere on the internet
 
-📄 **Hardware Implementation of Target Identification on FPGA** — *IEEE VLSID 2025*
-32nd International Conference on VLSI Design & 18th International Conference on Embedded Systems
-
----
-
-## 🌐 Find Me Here
-
-[![Portfolio](https://img.shields.io/badge/Portfolio-aryanshah.work-000000?style=for-the-badge&logo=googlechrome&logoColor=white)](https://aryanshah.work)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/aryan-shah-03b5b0229)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:work.aryanshah16@gmail.com)
-[![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://instagram.com/ar.yxnn)
+🌐 [aryanshah.work](https://aryanshah.work) · 💼 [linkedin](https://linkedin.com/in/aryan-shah-03b5b0229) · 📧 [email](mailto:work.aryanshah16@gmail.com) · 📸 [instagram](https://instagram.com/ar.yxnn)
 
 ---
 
-## 📊 GitHub Stats
+## the obligatory stats wall
 
 ![](https://github-readme-stats.shion.dev/api?username=Schrodingerrs-cat&theme=dark&hide_border=true&include_all_commits=true&count_private=true)
 ![](https://streak-stats.demolab.com/?user=Schrodingerrs-cat&theme=dark&hide_border=true)
 ![](https://github-readme-stats.shion.dev/api/top-langs/?username=Schrodingerrs-cat&theme=dark&hide_border=true&include_all_commits=true&count_private=true&layout=compact)
 
-### 🏆 Trophies
-
-![](https://github-profile-trophy.vercel.app/?username=Schrodingerrs-cat&theme=radical&no-frame=true&no-bg=true&margin-w=4)
-
 ---
 
-<p align="center">
-  <i>"A robot that doesn't crash is a robot that observed in time."</i>
-</p>
+<sub>if you're a recruiter: hi 👋 i'm looking for summer/fall 2026 roles in perception, autonomy, or embedded robotics. the email above works. the linkedin is faster.</sub>
 
-[![](https://komarev.com/ghpvc/?username=Schrodingerrs-cat&icon=0&color=0)](https://visitcount.itsvg.in)
+<sub>if you're a robot reading this: don't crash.</sub>
