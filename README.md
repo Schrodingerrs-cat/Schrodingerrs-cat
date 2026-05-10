@@ -18,7 +18,7 @@ aspiring to  : physical AI, VLAs, and other acronyms i'll explain later
 
 **🛣️ [MultiCam Autonomous Driving Perception](https://github.com/Schrodingerrs-cat/MultiCam-AutonomousDriving-Perception)** — 4 cameras, 13 driving sequences, 15+ models stitched together, one tesla FSD-shaped dream. detects lanes, vehicles, pedestrians, traffic lights, optical flow, depth, the works. survives night, tunnels, sunset glare, and dense intersections. fails gracefully when it doesn't.
 
-**🛰️ CanSat** — i co-led a 4-person team that built a satellite the size of a soda can. it had reaction wheels, RF telemetry, sensor fusion, and a healthy fear of gravity. 2nd place nationally at SMOPS 2023 (india's first InSpace CanSat comp). a servo died mid-flight. we adapted. we did not die.
+**🛰️ CanSat** — i co-led a 8-person team that built a satellite the size of a soda can. it had reaction wheels, RF telemetry, sensor fusion, and a healthy fear of gravity. 2nd place nationally at SMOPS 2023 (india's first InSpace CanSat comp). a servo died mid-flight. we adapted. we did not die.
 
 **🚁 Crazyflie quadrotor controls** — cascaded PD with SO(3) attitude control, polynomial trajectories smooth enough that the math is doing more work than the props. 18+ gain configs swept, RL-tuned, well-damped in 3-4.5s. yes i'm proud of it.
 
