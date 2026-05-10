@@ -2,13 +2,14 @@
 
 i teach machines to see, mostly so they don't run into things.
 
-currently a robotics masters student at WPI. before this i was in india putting flight controllers on drones and a satellite into the sky (it came back down, eventually, with a 2nd place medal attached). now i'm in worcester building a perception stack i call **schrödinger's vision** — a name i picked because in my experience the lane line is genuinely both there and not there until something's brave enough to look.
+currently a robotics masters student at WPI, working as a research assistant at the **RoboCare Lab** on human daily activity learning and recognition — basically teaching a robot to notice when you're brushing your teeth vs. brushing the cat. before this i was in india putting flight controllers on drones and a satellite into the sky (it came back down, eventually, with a 2nd place medal attached). on the side i'm building a perception stack i call **schrödinger's vision** — a name i picked because in my experience the lane line is genuinely both there and not there until something's brave enough to look.
 
 ```
 location     : worcester, ma
 status       : sleep-deprived but enthusiastic
-working on   : making a tesla model s feed look like a tesla model s feed
-side quest   : physical AI, VLAs, and other acronyms i'll explain later
+working on   : teaching a humanoid robot to recognize what humans are up to
+side quest   : multi-camera autonomous driving perception
+aspiring to  : physical AI, VLAs, and other acronyms i'll explain later
 ```
 
 ---
