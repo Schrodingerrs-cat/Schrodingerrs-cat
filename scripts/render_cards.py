@@ -51,30 +51,6 @@ FONT_BOLD = os.environ.get('FONT_BOLD') or system_font('Inter:style=Bold','/usr/
 FONT_MONO = os.environ.get('FONT_MONO') or system_font('DejaVu Sans Mono','/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
 STATIC = os.environ.get('STATIC') == '1'
 
-PROJECTS = [
-    ('vision', 'Schrödinger’s Vision', 'MULTI-CAMERA / AUTONOMY',
-     '4 cameras · 13 driving sequences · 15+ models',
-     'Lane & object detection / tracking / depth / optical flow',
-     'https://github.com/Schrodingerrs-cat/MultiCam-AutonomousDriving-Perception'),
-    ('vio', 'Visual–Inertial Odometry', 'ESTIMATION / DEEP + CLASSICAL',
-     'CNN + LSTM versus S-MSCKF',
-     'Synthetic Blender training / EuRoC + Vicon evaluation',
-     'https://aryanshah.work/'),
-    ('cansat', 'CanSat · Team Dyaus', 'EMBEDDED / FLIGHT HARDWARE',
-     '8-person team · 2nd nationally · SMOPS 2023',
-     'Reaction wheels / RF telemetry / sensor fusion',
-     'https://aryanshah.work/'),
-    ('quad', 'Crazyflie Controls', 'CONTROL / UAV',
-     'Cascaded PD + SO(3) attitude control',
-     '18+ gain sweeps / 3–4.5 s settling time',
-     'https://aryanshah.work/'),
-    ('nerf', 'NeRF + Structure from Motion', '3D VISION / RECONSTRUCTION',
-     'Volumetric rendering / hierarchical sampling',
-     'Camera geometry / pose estimation / bundle adjustment',
-     'https://aryanshah.work/'),
-]
-
-
 def esc(value):
     return html.escape(str(value), quote=True)
 
@@ -211,7 +187,7 @@ def hero(fonts):
     content += '<g class="enter">' + text(35,126,'ARYAN SHAH',72,TEXT,700) + '</g>'
     content += '<g class="enter">' + text(38,173,'i teach machines to see, reason, and occasionally avoid running into things.',20,MUTED) + '</g>'
     content += f'<path d="M38 205 H922" stroke="{BORDER}"/>'
-    content += text(38,237,'WPI  /  ROBOCARE LAB',13,ACCENT_2,family='MonoCard')
+    content += text(38,237,'WPI',13,ACCENT_2,family='MonoCard')
     content += text(922,237,'SCHRÖDINGER’S VISION  /  2026',12,MUTED,family='MonoCard',extra='text-anchor="end"')
     # Optional PNG/JPEG portrait may be embedded as a data URL, never externally fetched.
     portrait = ROOT / 'assets' / 'portrait.png'
@@ -290,20 +266,6 @@ def activity(days,fonts):
     svg('activity',960,480,content,1.05,fonts)
 
 
-def project_card(i,p,fonts):
-    slug,title,kicker,metric,detail,url=p
-    y=45
-    content = f'<circle cx="39" cy="42" r="5" fill="{ACCENT}"/>'
-    content += text(57,47,kicker,12,ACCENT,family='MonoCard')
-    content += '<g class="enter">' + text(35,109,title,33,TEXT,700) + '</g>'
-    content += text(37,157,metric,19,ACCENT_2)
-    content += text(37,195,detail,16,MUTED)
-    content += f'<path d="M35 224H925" stroke="{BORDER}"/>'
-    content += text(37,253,'SELECTED BUILD  /  '+str(i+1).zfill(2),12,MUTED,family='MonoCard')
-    content += text(920,253,'VIEW PROJECT ↗',12,ACCENT,family='MonoCard',extra='text-anchor="end"')
-    svg('repo-'+slug,960,278,content,1.65+i*.25,fonts)
-
-
 def contributions(days,fonts):
     content = text(35,50,'CONTRIBUTION MAP',15,ACCENT,family='MonoCard')
     content += text(35,87,'A year in commits and other contributions',26,TEXT,700)
@@ -355,7 +317,6 @@ def main():
     tile('tile-site','PORTFOLIO','Research / experience / writing','02 / EXPLORE',.55,fonts)
     tile('tile-contact','LET’S TALK','Robotics / collaboration / roles','03 / CONNECT',.65,fonts)
     activity(days,fonts)
-    for i,p in enumerate(PROJECTS):project_card(i,p,fonts)
     contributions(days,fonts)
 
 if __name__=='__main__': main()

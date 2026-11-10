@@ -19,9 +19,8 @@ If the local JSON file is absent, the chart says that data is not yet available;
 ## Caveats
 
 - Website CSS was not inspectable through the available page reader. The supplied dark navy/lime palette and Inter font are **configurable approximations**, not a verified exact match to `aryanshah.work`.
-- A browser loading an SVG through `<img>` cannot run JavaScript, fetch external images/fonts, or activate links inside the SVG. Each tile/repo is linked by an HTML `<a>` wrapping the `<img>`.
+- A browser loading an SVG through `<img>` cannot run JavaScript, fetch external images/fonts, or activate links inside the SVG. Each tile is linked by an HTML `<a>` wrapping the `<img>`.
 - Declarative CSS keyframe animations are supported by modern browsers, but GitHub's proxies, caching, and accessibility settings can affect display. Every card uses reduced-motion CSS with the fully visible final state.
 - Staggering uses local animation delays. Browser image loading does **not** guarantee precise synchronization across separate `<img>` instances.
 - The script uses CSS animation instead of SMIL so the `prefers-reduced-motion` rule can reliably disable all motion.
 - A WOFF font is embedded in **each SVG** using `pyftsubset`; this trades file size for portable appearance. Actual rendering may still differ between SVG implementations.
-- Repo cards other than `Schrödinger’s Vision` link to your general portfolio until their exact repository URLs are supplied. These are intentionally **not invented**.
