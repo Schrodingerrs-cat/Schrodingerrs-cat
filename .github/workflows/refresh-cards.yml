@@ -1,0 +1,50 @@
+name: Refresh profile cards
+
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/render_cards.py'
+      - '.github/workflows/refresh-cards.yml'
+      - 'assets/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-cards
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install font subsetting utility and fonts
+        run: |
+          python -m pip install 'fonttools[woff]>=4.55,<5'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-inter fonts-dejavu-core
+      - name: Fetch GitHub contributions and render cards
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STATIC: '0'
+        run: python scripts/render_cards.py --fetch
+      - name: Commit refreshed snapshot and SVG cards
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/contributions.json cards/
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: refresh GitHub contribution cards'
+            git push
+          else
+            echo 'No changes to commit'
+          fi
