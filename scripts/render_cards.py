@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Animated GitHub profile SVG cards for Schrodingerrs-cat.
 
-Layout matches the "Three Worlds" card stack pattern:
-  hero → contribution heatmap → monthly activity → three link tiles
+Visual language follows the "Three Worlds" README cards pattern:
+paper / ink / Instrument Serif + Geist, with WORK blue, SITE red, TALK yellow.
 
+Layout: hero → contribution heatmap → monthly activity → three link tiles.
 Cards are shown through <img>, so they only use inline CSS keyframes, SMIL,
-and fonts subset with pyftsubset and embedded as base64 WOFF. No featured
-repo cards. Contribution data comes from data/contributions.json.
+and fonts embedded as base64 WOFF from fonts/. No featured repo cards.
 
 Usage:
   python scripts/render_cards.py --fetch
@@ -23,47 +23,40 @@ import html
 import json
 import os
 from pathlib import Path
-import shutil
-import subprocess
-import tempfile
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 CARDS = ROOT / 'cards'
 DATA = ROOT / 'data' / 'contributions.json'
+FONTS = ROOT / 'fonts'
 USERNAME = 'Schrodingerrs-cat'
 
-# Brand tokens — dark navy / lime, approximating aryanshah.work
-BG = '#0B1220'
-PANEL = '#111C2E'
-PANEL_2 = '#152338'
-BORDER = '#2B3C53'
-TEXT = '#EAF3F8'
-MUTED = '#91A8BA'
-INK_SOFT = '#C5D4E0'
-ACCENT = '#A7F36D'
-ACCENT_2 = '#65D6CF'
-ACCENT_3 = '#F0C35A'
+# Paper / ink / three-world accents
+PAPER = '#f3f3f1'
+PAPER_DEEP = '#e2e2de'
+INK = '#111111'
+INK_SOFT = '#3a3a3c'
+MUTED = '#6e6e73'
+RULE = '#dcdcd7'
+TECH = '#2f55ff'      # WORK
+STUDIO = '#ef3b2d'    # SITE
+LEARN = '#ffc81a'     # TALK
 W = 880
-GAP = 12
 BOTTOM = 12
 
 STATIC = os.environ.get('STATIC') == '1'
 
+SERIF = "'Instrument Serif', Georgia, serif"
+SANS = 'Geist, system-ui, -apple-system, sans-serif'
+MONO = "'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace"
 
-def system_font(name, fallback):
-    try:
-        return subprocess.check_output(['fc-match', '-f', '%{file}', name], text=True).strip() or fallback
-    except (OSError, subprocess.CalledProcessError):
-        return fallback
-
-
-FONT_REG = os.environ.get('FONT_REG') or system_font('Inter:style=Regular', '/usr/share/fonts/truetype/inter/Inter-Regular.otf')
-FONT_BOLD = os.environ.get('FONT_BOLD') or system_font('Inter:style=Bold', '/usr/share/fonts/truetype/inter/Inter-Bold.otf')
-FONT_MONO = os.environ.get('FONT_MONO') or system_font('DejaVu Sans Mono', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
-
-SANS = 'InterCard, system-ui, sans-serif'
-MONO = 'MonoCard, ui-monospace, monospace'
+FONT_FILES = {
+    'serif': ('Instrument Serif', 'normal', 400, 'serif-400.woff'),
+    'serif-i': ('Instrument Serif', 'italic', 400, 'serif-italic.woff'),
+    'sans': ('Geist', 'normal', 400, 'geist-400.woff'),
+    'sans-b': ('Geist', 'normal', 600, 'geist-600.woff'),
+    'mono': ('Geist Mono', 'normal', 400, 'geistmono-400.woff'),
+}
 
 BASE_CSS = """
 @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -163,31 +156,14 @@ def load_data():
     return {'days': days, 'total_contributions': total}
 
 
-def subset_font(path, chars):
-    if not Path(path).exists() or not shutil.which('pyftsubset'):
-        raise RuntimeError(f'Font missing or pyftsubset unavailable: {path}')
-    with tempfile.TemporaryDirectory() as td:
-        out = Path(td) / 'subset.woff'
-        subset_chars = Path(td) / 'chars.txt'
-        subset_chars.write_text(chars, encoding='utf-8')
-        cmd = ['pyftsubset', path, f'--output-file={out}', '--flavor=woff',
-               f'--text-file={subset_chars}', '--layout-features=*',
-               '--no-hinting', '--ignore-missing-unicodes']
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
-        return base64.b64encode(out.read_bytes()).decode('ascii')
-
-
-def font_css(keys=('reg', 'bold', 'mono')):
-    chars = ''.join(chr(i) for i in range(32, 127)) + '–—·’→↗×°≥≤Σéöꞏ✓•'
-    mapping = {
-        'reg': ('InterCard', 'normal', 400, FONT_REG),
-        'bold': ('InterCard', 'normal', 700, FONT_BOLD),
-        'mono': ('MonoCard', 'normal', 400, FONT_MONO),
-    }
+def font_face(keys):
     out = []
     for key in keys:
-        fam, style, weight, path = mapping[key]
-        b64 = subset_font(path, chars)
+        fam, style, weight, filename = FONT_FILES[key]
+        path = FONTS / filename
+        if not path.exists():
+            raise RuntimeError(f'Missing font file: {path}')
+        b64 = base64.b64encode(path.read_bytes()).decode()
         out.append(
             f"@font-face{{font-family:'{fam}';font-style:{style};font-weight:{weight};"
             f"src:url(data:font/woff;base64,{b64}) format('woff')}}"
@@ -200,7 +176,7 @@ def svg(name, width, height, body, fonts, label, left=0, right=0, bottom=BOTTOM,
         body = f'<g transform="translate({left:.3f} 0)">{body}</g>'
     width = width + left + right
     height = height + bottom
-    css = fonts + BASE_CSS + extra_css
+    css = font_face(fonts) + BASE_CSS + extra_css
     if STATIC:
         css += ('.r,.f,.g,.p,.live,.n,.nu,.ti,.sl,.ai{animation:none!important;'
                 'opacity:1!important;transform:none!important}.sh,.rg{display:none}')
@@ -250,78 +226,67 @@ def stats(days):
     return active, streak, busiest, months
 
 
-def hero(fonts):
+def hero():
     h = 360
     body = f'''
 <defs>
   <linearGradient id="shine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="600" y2="0">
-    <stop offset="0" stop-color="{TEXT}"/>
-    <stop offset=".42" stop-color="{TEXT}"/>
-    <stop offset=".5" stop-color="{ACCENT}"/>
-    <stop offset=".58" stop-color="{TEXT}"/>
-    <stop offset="1" stop-color="{TEXT}"/>
+    <stop offset="0" stop-color="{INK}"/>
+    <stop offset=".42" stop-color="{INK}"/>
+    <stop offset=".5" stop-color="{TECH}"/>
+    <stop offset=".58" stop-color="{INK}"/>
+    <stop offset="1" stop-color="{INK}"/>
     <animateTransform attributeName="gradientTransform" type="translate" values="-600 0;600 0;600 0"
       keyTimes="0;.45;1" dur="7s" begin="1.6s" repeatCount="indefinite"/>
   </linearGradient>
 </defs>
-<rect width="{W}" height="{h}" rx="16" fill="{BG}"/>
-<rect x="1" y="1" width="{W-2}" height="{h-2}" rx="15" fill="none" stroke="{BORDER}"/>
+<rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
 <g class="f" {d(0)}>
-  <rect class="live" x="44" y="46" width="8" height="8" rx="2" fill="{ACCENT}"/>
-  <text x="62" y="54" font-family="{MONO}" font-size="12" letter-spacing="1.2" fill="{MUTED}">ROBOTICS / PERCEPTION / EMBODIED AI</text>
+  <rect class="live" x="48" y="49" width="8" height="8" rx="2" fill="{TECH}"/>
+  <text x="66" y="57" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">ROBOTICS / PERCEPTION / EMBODIED AI</text>
 </g>
-<text class="r" {d(0.15)} x="40" y="150" font-family="{SANS}" font-weight="700" font-size="78" letter-spacing="-2" fill="{TEXT}">Aryan</text>
-<text class="r" {d(0.3)} x="40" y="230" font-family="{SANS}" font-weight="700" font-size="78" letter-spacing="-2" fill="url(#shine)">Shah</text>
+<text class="r" {d(0.15)} x="44" y="160" font-family="{SERIF}" font-size="96" letter-spacing="-2.5" fill="{INK}">Aryan</text>
+<text class="r" {d(0.3)} x="44" y="250" font-family="{SERIF}" font-style="italic" font-size="96" letter-spacing="-2.5" fill="url(#shine)">Shah</text>
 <g class="r" {d(0.55)}>
-  {text_lines(44, 278, [
+  {text_lines(48, 292, [
       'i teach machines to see, reason, and occasionally',
       'avoid running into things.',
   ], 24, f'font-family="{SANS}" font-size="17" fill="{INK_SOFT}"')}
 </g>
 <g class="f" {d(0.85)}>
-  <text x="44" y="336" font-family="{MONO}" font-size="13" fill="{ACCENT_2}">WPI</text>
-  <text x="84" y="336" font-family="{MONO}" font-size="13" fill="{MUTED}">/</text>
-  <text x="100" y="336" font-family="{MONO}" font-size="13" fill="{MUTED}">SCHRÖDINGER’S VISION  ·  2026</text>
-  <text x="760" y="336" font-family="{MONO}" font-size="13" fill="{MUTED}">aryanshah.work</text>
-  <text class="nu" x="888" y="336" text-anchor="end" font-family="{MONO}" font-size="13" fill="{ACCENT}">↗</text>
+  <text x="48" y="340" font-family="{MONO}" font-size="13" fill="{INK}">WPI</text>
+  <text x="84" y="340" font-family="{MONO}" font-size="13" fill="{MUTED}">/</text>
+  <text x="100" y="340" font-family="{MONO}" font-size="13" fill="{MUTED}">SCHRÖDINGER’S VISION  ·  2026</text>
+  <text x="730" y="340" font-family="{MONO}" font-size="13" fill="{INK}">aryanshah.work</text>
+  <text class="nu" x="860" y="340" font-family="{MONO}" font-size="13" fill="{TECH}">↗</text>
 </g>
 '''
-    svg('hero.svg', W, h, body, fonts,
+    svg('hero.svg', W, h, body, ['serif', 'serif-i', 'sans', 'mono'],
         'Aryan Shah — Robotics, Perception and Embodied AI')
 
 
-GREEN = [PANEL_2, '#1E2C3D', '#355C42', '#588F50', '#79BA5D', ACCENT]
+BLUE = [PAPER_DEEP, '#c8d3ff', '#94a8ff', '#6280ff', TECH, '#1a3be0']
 
 
 def level_for(count):
-    if count <= 0:
-        return 0
-    if count < 2:
-        return 1
-    if count < 4:
-        return 2
-    if count < 7:
-        return 3
-    if count < 12:
-        return 4
-    return 5
+    return 0 if count == 0 else 1 if count <= 5 else 2 if count <= 15 else 3 if count <= 30 else 4 if count <= 50 else 5
 
 
-def heatmap(data, fonts):
+def heatmap(data):
     days = data['days']
     if not days:
         body = f'''
-<rect width="{W}" height="220" rx="16" fill="{BG}"/>
-<rect x="1" y="1" width="{W-2}" height="218" rx="15" fill="none" stroke="{BORDER}"/>
-<text class="r" {d(0.8)} x="42" y="70" font-family="{SANS}" font-weight="700" font-size="28" fill="{TEXT}">Every day, <tspan fill="{ACCENT}">in lime</tspan></text>
+<rect width="{W}" height="220" rx="14" fill="{PAPER}"/>
+<text class="r" {d(0.8)} x="42" y="70" font-family="{SERIF}" font-size="34" fill="{INK}">Every day, <tspan font-style="italic" fill="{TECH}">in blue</tspan></text>
 <text class="f" {d(1.0)} x="42" y="120" font-family="{SANS}" font-size="16" fill="{MUTED}">Waiting for GitHub GraphQL contribution data.</text>
 '''
-        svg('contributions.svg', W, 220, body, fonts, 'Contribution graph placeholder')
+        svg('contributions.svg', W, 220, body, ['serif', 'serif-i', 'sans', 'mono'],
+            'Contribution graph placeholder')
         return
 
     first = date.fromisoformat(days[0]['date'])
     lead = (first.weekday() + 1) % 7
-    cell, step, gx, gy = 11, 14, 42, 92
+    cell, step, gx, gy = 12, 15, 44, 96
     cells, months, seen = [], [], set()
     for i, day in enumerate(days):
         k = i + lead
@@ -335,7 +300,7 @@ def heatmap(data, fonts):
         cells.append(
             f'<rect class="p" style="animation-delay:{delay:.2f}s" '
             f'x="{gx + col * step}" y="{gy + row * step}" width="{cell}" height="{cell}" '
-            f'rx="2.5" fill="{GREEN[level_for(count)]}">'
+            f'rx="3" fill="{BLUE[level_for(count)]}">'
             f'<title>{day["date"]}: {count} contribution{"s" if count != 1 else ""}</title></rect>'
         )
     ncols = (len(days) + lead + 6) // 7
@@ -343,32 +308,31 @@ def heatmap(data, fonts):
     labels = ''.join(
         f'<text x="{gx + col * step}" y="{gy + 7 * step + 16}" font-family="{MONO}" '
         f'font-size="11" fill="{MUTED}">{month}</text>'
-        for col, month in months if col < ncols - 8
+        for col, month in months if col < ncols - 12
     )
-    legend_x = right - len(GREEN) * 14
+    legend_x = right - len(BLUE) * 14
     legend = ''.join(
         f'<rect x="{legend_x + i * 14}" y="{gy + 7 * step + 6}" width="11" height="11" '
         f'rx="2.5" fill="{color}"/>'
-        for i, color in enumerate(GREEN)
+        for i, color in enumerate(BLUE)
     )
     h = gy + 7 * step + 44
     total = data['total_contributions']
     body = f'''
-<rect width="{W}" height="{h}" rx="16" fill="{BG}"/>
-<rect x="1" y="1" width="{W-2}" height="{h-2}" rx="15" fill="none" stroke="{BORDER}"/>
-<text class="r" {d(0.8)} x="42" y="58" font-family="{SANS}" font-weight="700" font-size="30" fill="{TEXT}">Every day, <tspan fill="{ACCENT}">in lime</tspan></text>
-<text class="f" {d(0.8)} x="{right}" y="56" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">REFRESHED DAILY</text>
+<rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
+<text class="r" {d(0.8)} x="42" y="62" font-family="{SERIF}" font-size="34" fill="{INK}">Every day, <tspan font-style="italic" fill="{TECH}">in blue</tspan></text>
+<text class="f" {d(0.8)} x="{right}" y="60" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">REFRESHED DAILY</text>
 {''.join(cells)}
 <g class="f" {d(2.4)}>{labels}
 <text x="{legend_x - 8}" y="{gy + 7 * step + 16}" text-anchor="end" font-family="{MONO}" font-size="11" fill="{MUTED}">less</text>
 {legend}
-<text x="{legend_x + len(GREEN) * 14 + 2}" y="{gy + 7 * step + 16}" font-family="{MONO}" font-size="11" fill="{MUTED}">more</text></g>
+<text x="{legend_x + len(BLUE) * 14 + 2}" y="{gy + 7 * step + 16}" font-family="{MONO}" font-size="11" fill="{MUTED}">more</text></g>
 '''
-    svg('contributions.svg', W, h, body, fonts,
+    svg('contributions.svg', W, h, body, ['serif', 'serif-i', 'mono'],
         f'Contribution graph: {total:,} contributions in the last year')
 
 
-def activity(data, fonts):
+def activity(data):
     days = data['days']
     active, streak, busiest, monthly = stats(days)
     h = 340
@@ -383,7 +347,7 @@ def activity(data, fonts):
         for i, (key, value) in enumerate(zip(keys, values)):
             bh = max(4, round(value / peak * maxh)) if value else 3
             x = x0 + i * (bw + gap)
-            fill = ACCENT if i == best_i else ('#2A3B4F' if i == len(keys) - 1 else '#6F8A74')
+            fill = TECH if i == best_i else ('#c9c9c4' if i == len(keys) - 1 else INK)
             label = datetime.strptime(key + '-01', '%Y-%m-%d').strftime('%b')
             bars.append(
                 f'<rect class="g" style="animation-delay:{2.2 + i * 0.07:.2f}s" '
@@ -397,13 +361,13 @@ def activity(data, fonts):
                 bars.append(
                     f'<text class="p" style="animation-delay:3.2s" x="{x + bw / 2:.1f}" '
                     f'y="{base - bh - 10}" text-anchor="middle" font-family="{MONO}" '
-                    f'font-size="11" fill="{ACCENT}">{value:,}</text>'
+                    f'font-size="11" fill="{TECH}">{value:,}</text>'
                 )
 
     total = data['total_contributions'] if days else 0
     side_stats = [
-        (f'{streak}', 'current streak, days'),
-        (f'{active}', 'days with a contribution'),
+        (f'{streak} <tspan font-style="italic">days</tspan>', 'current streak'),
+        (f'{active}<tspan fill="#8e8e93"> / {len(days) if days else 0}</tspan>', 'days with a contribution'),
         (f'{busiest["count"] if busiest else "—"}', 'on the busiest day'),
     ]
     side = []
@@ -411,22 +375,24 @@ def activity(data, fonts):
         y = 104 + i * 92
         side.append(
             f'<g class="r" {d(2.6 + i * 0.15)}>'
-            f'<text x="650" y="{y}" font-family="{SANS}" font-weight="700" font-size="40" fill="{TEXT}">{big}</text>'
+            f'<text x="650" y="{y}" font-family="{SERIF}" font-size="40" fill="{INK}">{big}</text>'
             f'<text x="650" y="{y + 24}" font-family="{SANS}" font-size="13" fill="{MUTED}">{esc(small)}</text></g>'
         )
         if i < 2:
-            side.append(f'<rect class="f" {d(2.6)} x="650" y="{y + 44}" width="190" height="1" fill="{BORDER}"/>')
+            side.append(f'<rect class="f" {d(2.6)} x="650" y="{y + 44}" width="190" height="1" fill="{RULE}"/>')
 
-    headline = f'{total:,} contributions' if days else 'Waiting for data'
+    if days:
+        headline = f'{total:,} <tspan font-style="italic">contributions</tspan>'
+    else:
+        headline = 'Waiting for data'
     body = f'''
-<rect width="{W}" height="{h}" rx="16" fill="{BG}"/>
-<rect x="1" y="1" width="{W-2}" height="{h-2}" rx="15" fill="none" stroke="{BORDER}"/>
+<rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
 <text class="f" {d(1.9)} x="40" y="52" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">THE LAST 12 MONTHS ON GITHUB</text>
-<text class="r" {d(2.0)} x="38" y="104" font-family="{SANS}" font-weight="700" font-size="42" fill="{TEXT}">{esc(headline)}</text>
+<text class="r" {d(2.0)} x="38" y="114" font-family="{SERIF}" font-size="48" fill="{INK}">{headline}</text>
 {''.join(bars)}
 {''.join(side)}
 '''
-    svg('activity.svg', W, h, body, fonts,
+    svg('activity.svg', W, h, body, ['serif', 'serif-i', 'sans', 'mono'],
         f'{total:,} contributions in the last year, {streak}-day streak')
 
 
@@ -434,7 +400,7 @@ TILE_W = W / 3 - 8
 TILE_H = 210
 
 
-def tile(name, label, color, on, title, blurb, delay, pos, fonts):
+def tile(name, label, color, on, title, blurb, delay, pos):
     lines = wrap(blurb, 28)
     blurb_svg = ''.join(
         f'<text class="r" {d(delay + 0.75 + i * 0.1)} x="24" y="{148 + i * 20}" '
@@ -443,10 +409,10 @@ def tile(name, label, color, on, title, blurb, delay, pos, fonts):
     )
     body = f'''
 <defs>
-  <clipPath id="card"><rect width="{TILE_W}" height="{TILE_H}" rx="16"/></clipPath>
+  <clipPath id="card"><rect width="{TILE_W}" height="{TILE_H}" rx="14"/></clipPath>
   <linearGradient id="gl" x1="0" x2="1">
     <stop offset="0" stop-color="#fff" stop-opacity="0"/>
-    <stop offset=".5" stop-color="#fff" stop-opacity=".28"/>
+    <stop offset=".5" stop-color="#fff" stop-opacity=".35"/>
     <stop offset="1" stop-color="#fff" stop-opacity="0"/>
   </linearGradient>
 </defs>
@@ -454,7 +420,7 @@ def tile(name, label, color, on, title, blurb, delay, pos, fonts):
   <g clip-path="url(#card)">
     <rect width="{TILE_W}" height="{TILE_H}" fill="{color}"/>
     <circle class="rg" {d(delay + 0.5)} cx="{TILE_W - 40}" cy="{TILE_H - 40}" r="60"
-      fill="none" stroke="{on}" stroke-opacity=".45" stroke-width="2"/>
+      fill="none" stroke="{on}" stroke-opacity=".5" stroke-width="2"/>
     <rect class="sh" style="animation-delay:{delay + 1.4:.2f}s" x="0" y="-20" width="90"
       height="{TILE_H + 40}" fill="url(#gl)" transform="translate(-260 0)"/>
   </g>
@@ -464,13 +430,12 @@ def tile(name, label, color, on, title, blurb, delay, pos, fonts):
     <text class="n" style="animation-delay:{delay + 1.3:.2f}s" x="{TILE_W - 28}" y="38"
       font-family="{MONO}" font-size="14" fill="{on}">→</text>
   </g>
-  <text class="r" {d(delay + 0.5)} x="24" y="108" font-family="{SANS}" font-weight="700"
-    font-size="34" fill="{on}">{esc(title)}</text>
+  <text class="r" {d(delay + 0.5)} x="24" y="108" font-family="{SERIF}" font-size="40" fill="{on}">{esc(title)}</text>
   {blurb_svg}
 </g>
 '''
-    svg(f'{name}.svg', TILE_W, TILE_H, body, fonts, f'{label}: {title}. {blurb}',
-        left=4 * pos, right=8 - 4 * pos)
+    svg(f'{name}.svg', TILE_W, TILE_H, body, ['serif', 'serif-i', 'sans', 'mono'],
+        f'{label}: {title}. {blurb}', left=4 * pos, right=8 - 4 * pos)
 
 
 def main():
@@ -481,16 +446,15 @@ def main():
         fetch_data()
     CARDS.mkdir(parents=True, exist_ok=True)
     data = load_data()
-    fonts = font_css()
-    hero(fonts)
-    heatmap(data, fonts)
-    activity(data, fonts)
-    tile('tile-work', 'WORK', ACCENT, BG, 'Projects',
-         'Browse repositories and selected engineering builds.', 3.1, 0, fonts)
-    tile('tile-site', 'SITE', ACCENT_2, BG, 'Portfolio',
-         'Research, experience, and writing on aryanshah.work.', 3.35, 1, fonts)
-    tile('tile-contact', 'TALK', ACCENT_3, BG, 'Let’s talk',
-         'Robotics, collaboration, and roles — get in touch.', 3.6, 2, fonts)
+    hero()
+    heatmap(data)
+    activity(data)
+    tile('tile-work', 'WORK', TECH, '#ffffff', 'Projects',
+         'Browse repositories and selected engineering builds.', 3.1, 0)
+    tile('tile-site', 'SITE', STUDIO, '#ffffff', 'Portfolio',
+         'Research, experience, and writing on aryanshah.work.', 3.35, 1)
+    tile('tile-contact', 'TALK', LEARN, INK, 'Let’s talk',
+         'Robotics, collaboration, and roles — get in touch.', 3.6, 2)
 
 
 if __name__ == '__main__':

@@ -3,10 +3,10 @@
 1. Copy this repository's contents into your **public** `Schrodingerrs-cat/Schrodingerrs-cat` profile repository.
 2. Confirm repository **Settings → Actions → General → Workflow permissions** allows **Read and write permissions**. The provided job requests `contents: write`.
 3. Run the **Refresh profile cards** workflow manually for the first fetch. The scheduled run refreshes every day at **05:17 UTC**.
-4. To generate locally, install `fonttools[woff]`, `fonts-inter` and `fonts-dejavu-core`; then `python scripts/render_cards.py`.
+4. To generate locally, run `python scripts/render_cards.py`. Fonts are the subset WOFFs in `fonts/` (Instrument Serif, Geist, Geist Mono; SIL OFL).
 5. For screenshots, run `STATIC=1 python scripts/render_cards.py`. **Do not commit the static versions** unless you want a non-animated profile: run `python scripts/render_cards.py` to restore them.
-6. To change branding, edit `BG`, `PANEL`, `TEXT`, `MUTED`, `ACCENT`, and font paths near the start of `scripts/render_cards.py`.
-7. Optional portrait: save a small PNG at `assets/portrait.png` (cropped circle in the hero). The default hero is typography-first, no portrait.
+6. To change branding, edit `PAPER`, `INK`, `TECH`, `STUDIO`, `LEARN`, and the `FONT_FILES` map near the start of `scripts/render_cards.py`.
+7. Optional portrait: save a small PNG at `assets/portrait.png` if you later wire portrait embedding back in. The default hero is typography-first.
 
 ## Data semantics
 
@@ -18,9 +18,9 @@ If the local JSON file is absent, the chart says that data is not yet available;
 
 ## Caveats
 
-- Website CSS was not inspectable through the available page reader. The supplied dark navy/lime palette and Inter font are **configurable approximations**, not a verified exact match to `aryanshah.work`.
+- Visual language is the paper / ink / Instrument Serif + Geist stack from the Three Worlds README pattern, with WORK blue, SITE red, and TALK yellow tiles.
 - Layout order is hero → contribution heatmap → monthly activity → three link tiles. Keep README cards tight (no blank lines between rows) so GitHub spacing matches the baked SVG gaps.
 - A browser loading an SVG through `<img>` cannot run JavaScript, fetch external images/fonts, or activate links inside the SVG. Each tile is linked by an HTML `<a>` wrapping the `<img>`.
 - Cards use CSS keyframes plus limited SMIL (name shine). Every animation turns off under `prefers-reduced-motion`.
 - Staggering uses local animation delays. Browser image loading does **not** guarantee precise synchronization across separate `<img>` instances.
-- A WOFF font is embedded in **each SVG** using `pyftsubset`; this trades file size for portable appearance. Actual rendering may still differ between SVG implementations.
+- Subset WOFF fonts from `fonts/` are embedded in each SVG as data URIs for portable appearance.
